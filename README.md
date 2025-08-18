@@ -21,11 +21,12 @@ flowchart TD
     C --> E[Upload .sql to encrypt]
   end
 
-  D -->|POST /sql/execute (user, password, tnsAlias, usfile)| F[Backend API]
-  E -->|POST /sql/encrypt (sqlfile)| F
+  D -- "POST /sql/execute" --> F[Backend API]
+  E -- "POST /sql/encrypt" --> F
 
-  F -->|Oracle Client (TNS)| G[(Oracle DB)]
-  G --> F --> H[JSON result: columns + rows]
+  F -- "Oracle Client (TNS)" --> G[(Oracle DB)]
+  G --> F
+  F --> H[JSON result: columns + rows]
   H --> B
   B --> I[Download CSV]
   E --> J[Download .US]
@@ -33,7 +34,7 @@ flowchart TD
   subgraph Integrations
     K[External Microservice]
   end
-  K -->|Calls /sql/execute with credentials + .US| F
+  K -- "Call /sql/execute with .US" --> F
 ```
 
 ## Monorepo Structure
