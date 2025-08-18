@@ -1,0 +1,74 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #f0f2f5;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .container {
+    width: 320px;
+    margin: 40px auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .title {
+    margin: 0 0 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+    font-size: 18px;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #dcdfe3;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fbfbfb;
+    outline: none;
+    transition: border 0.3s;
+    box-sizing: border-box;
+  }
+  
+  .input:focus {
+    border-color: #7AA0FF;
+  }
+  
+  .button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: none;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s;
+    box-sizing: border-box;
+    background: #9C27B0; /* roxo para diferenciar admin */
+  }
+  .button:hover {
+    background: #8E24AA;
+  }
+  
+  .link {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .link a {
+    color: #9C27B0;
+    text-decoration: none;
+  }
+  
+  .link a:hover {
+    text-decoration: underline;
+  }
+  
