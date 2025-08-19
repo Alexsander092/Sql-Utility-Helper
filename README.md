@@ -89,12 +89,12 @@ flowchart TD
     end
     
     subgraph Backend [API Backend]
-        API1[/sql/execute - Execute .US]
-        API2[/sql/encrypt - Encrypt]
-        API3[/sql/decrypt - Decrypt]
-        API4[/sql/execute-direct - Direct SQL]
-        API5[/sql/test-connection - Test DB]
-        API6[/sql/tns-aliases - List TNS]
+        API1["POST /sql/execute"]
+        API2["POST /sql/encrypt"]
+        API3["POST /sql/decrypt"]
+        API4["POST /sql/execute-direct"]
+        API5["POST /sql/test-connection"]
+        API6["GET /sql/tns-aliases"]
     end
     
     UserDash -.->|HTTP POST| API1
@@ -113,29 +113,6 @@ flowchart TD
         K[External Microservice]
     end
     K -.->|Call /sql/execute with .US| Backend
-    
-    style UserDash fill:#e1f5fe
-    style AdminDash fill:#fff3e0
-    style Results fill:#f3e5f5
-    style Backend fill:#e8f5e8
-    style DB fill:#ffebee
-    style Integrations fill:#f1f8e9
-```
-    AdminDash -.->|HTTP POST| API1
-    AdminDash -.->|HTTP POST| API2
-    AdminDash -.->|HTTP POST| API3
-    AdminDash -.->|HTTP POST| API4
-    UserDash -.->|HTTP POST| API5
-    AdminDash -.->|HTTP POST| API5
-    UserDash -.->|HTTP GET| API6
-    AdminDash -.->|HTTP GET| API6
-    
-    Backend -.->|Oracle Client| DB[(Oracle Database)]
-    
-    subgraph Integrations [Integrações Externas]
-        K[Microserviço Externo]
-    end
-    K -.->|Chamar /sql/execute com .US| Backend
     
     style UserDash fill:#e1f5fe
     style AdminDash fill:#fff3e0
@@ -302,64 +279,6 @@ Includes all user functionalities, plus:
    - View results in the same advanced popup
    - Use "Clear" to clean the editor
 
-## API Reference
-
-Base URL: `http://localhost:3002`
-
-### SQL Execution Endpoints
-
-- **POST** `/sql/execute`
-  - **Description**: Executes an encrypted SQL file against Oracle database
-  - **Format**: `multipart/form-data`
-  - **Parameters**:
-    - `user`: Oracle database username
-    - `password`: Oracle database password  
-    - `tnsAlias`: Oracle TNS connection alias
-    - `usfile`: Encrypted SQL file (.US format)
-  - **Response**: `{ columns: string[], data: any[][] }`
-
-- **POST** `/sql/execute-direct` ✨ **New**
-  - **Description**: Execute SQL directly without file
-  - **Format**: `application/json`
-  - **Parameters**:
-    - `user`: Oracle database username
-    - `password`: Oracle database password
-    - `tnsAlias`: Oracle TNS connection alias
-    - `sqlText`: SQL text to execute
-  - **Response**: `{ success: boolean, columns: string[], data: any[][] }`
-
-- **POST** `/sql/encrypt`
-  - **Description**: Encrypts plain SQL file to .US format
-  - **Format**: `multipart/form-data`
-  - **Parameters**:
-    - `sqlfile`: Plain SQL file to encrypt
-  - **Response**: Encrypted file download
-
-- **GET** `/sql/tns-aliases`
-  - **Description**: Retrieves available TNS aliases from tnsnames.ora
-  - **Response**: `{ tnsAliases: string[] }`
-
-- **POST** `/sql/test-connection`
-  - **Description**: Tests Oracle database connection
-  - **Request Format**: `application/json`
-  - **Parameters**:
-    - `user`: Oracle database username
-    - `password`: Oracle database password
-    - `tnsAlias`: Oracle TNS connection alias
-  - **Response**: `{ success: boolean, message: string }`
-
-- POST `/sql/encrypt`
-  - multipart/form-data file: `sqlfile` (plain .sql)
-  - Response: binary body of the encrypted `.us` file.
-
-- POST `/sql/download-csv`
-  - Body JSON: `{ columns: string[], data: any[] }`
-  - Returns a CSV; note the UI already generates CSV client-side.
-
-Notes:
-- The encryption used mirrors the legacy tool (AES-128-CBC with a shared key). Future work will externalize the key.
-- `tnsnames.ora` must define the alias you pass via `tnsAlias`.
-
 ## Legacy replacement and Microservice use
 
 This project replaces a manual Windows .exe workflow with a web UI and an HTTP API. Other services can call the API directly to execute pre-encrypted queries without any UI. Example (pseudo-PowerShell):
@@ -388,6 +307,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/sql/execute" -Method Post -Form @{
 ## License
 
 See package metadata. This repository is currently UNLICENSED for redistribution unless stated otherwise.
+
 ## Technical Architecture
 
 ### Frontend (React)
