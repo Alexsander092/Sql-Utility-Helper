@@ -6,6 +6,7 @@ async function bootstrap() {
   process.env.TNS_ADMIN = path.join(__dirname, '..', 'config', 'oracle');
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  await app.listen(3000);
+  const port = parseInt(process.env.PORT || '', 10) || 3002;
+  await app.listen(port);
 }
 bootstrap();

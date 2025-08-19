@@ -6,7 +6,8 @@ html, body {
   }
   
   .container {
-    width: 320px;
+    width: 90%;
+    max-width: 800px;
     margin: 40px auto;
     background: #ffffff;
     border-radius: 8px;
@@ -15,12 +16,18 @@ html, body {
     box-sizing: border-box;
   }
   
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
   .title {
-    margin: 0 0 20px;
-    text-align: center;
+    margin: 0;
     font-weight: 600;
     color: #333;
-    font-size: 18px;
+    font-size: 24px;
   }
   
   .input {
