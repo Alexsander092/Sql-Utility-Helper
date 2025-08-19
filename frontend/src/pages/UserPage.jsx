@@ -736,6 +736,20 @@ function UserPage({ isAdmin = false }) {
               
               .actions {
                 margin: 30px 0;
+                padding: 20px;
+                background: rgba(249, 250, 251, 0.8);
+                border-radius: 15px;
+                border: 1px solid rgba(229, 231, 235, 0.5);
+              }
+              
+              .actions h3 {
+                margin-top: 0;
+                margin-bottom: 15px;
+                font-size: 20px;
+                color: #374151;
+              }
+              
+              .action-buttons {
                 display: flex;
                 gap: 15px;
                 flex-wrap: wrap;
@@ -843,9 +857,12 @@ function UserPage({ isAdmin = false }) {
               ${rawOutputHtml}
               
               <div class="actions">
-                <button class="btn btn-primary" onclick="window.print()">🖨️ Print</button>
-                <button class="btn btn-primary" onclick="copyResults()">📋 Copy All</button>
-                ${hasTabularData ? '<button class="btn btn-primary" onclick="exportCSV()">💾 Export CSV</button>' : ''}
+                <h3>📊 Opções de Exportação</h3>
+                <div class="action-buttons">
+                  <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+                  <button class="btn btn-primary" onclick="copyResults()">📋 Copiar Dados</button>
+                  ${hasTabularData ? '<button class="btn btn-primary" onclick="exportCSV()" title="Exportar resultados como arquivo CSV">💾 Exportar CSV</button>' : ''}
+                </div>
               </div>
             </div>
             
@@ -961,23 +978,118 @@ function UserPage({ isAdmin = false }) {
               }
               
               function copyResults() {
-                const text = data.map(row => row.join('\\t')).join('\\n');
-                navigator.clipboard.writeText(columns.join('\\t') + '\\n' + text);
-                alert('Results copied to clipboard!');
+                try {
+                  console.log("Copiando resultados para a área de transferência");
+                  
+                  // Verificar se temos colunas e dados válidos
+                  if (!Array.isArray(columns) || columns.length === 0) {
+                    throw new Error("Colunas inválidas para copiar");
+                  }
+                  
+                  if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("Dados inválidos para copiar");
+                  }
+                  
+                  // Criar texto formatado para copiar
+                  const headerRow = columns.join('\\t');
+                  
+                  // Criar linhas de dados com tratamento de erro
+                  const rows = data.map(row => {
+                    if (!Array.isArray(row)) {
+                      console.warn("Linha não é um array:", row);
+                      return "";
+                    }
+                    return row.map(cell => (cell === null || cell === undefined) ? '' : cell).join('\\t');
+                  }).join('\\n');
+                  
+                  // Combinar cabeçalho e dados
+                  const text = headerRow + '\\n' + rows;
+                  
+                  // Copiar para a área de transferência
+                  navigator.clipboard.writeText(text).then(() => {
+                    console.log("Dados copiados com sucesso");
+                    alert('Resultados copiados para a área de transferência!');
+                  }).catch(err => {
+                    console.error("Erro ao copiar para área de transferência:", err);
+                    alert('Erro ao copiar: ' + err.message);
+                  });
+                } catch (error) {
+                  console.error("Erro ao preparar dados para copiar:", error);
+                  alert("Erro ao copiar resultados: " + error.message);
+                }
               }
               
               function exportCSV() {
-                const csv = columns.join(',') + '\\n' + data.map(row => row.map(cell => '"' + (cell || '').replace(/"/g, '""') + '"').join(',')).join('\\n');
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fNameForExport.replace('.us', '') + '_results.csv';
-                a.click();
-                URL.revokeObjectURL(url);
+                try {
+                  console.log("Exporting CSV with columns:", columns);
+                  console.log("Exporting CSV with data:", data);
+                  
+                  // Verificar se temos colunas e dados válidos
+                  if (!Array.isArray(columns) || columns.length === 0) {
+                    throw new Error("Colunas inválidas para exportação CSV");
+                  }
+                  
+                  if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("Dados inválidos para exportação CSV");
+                  }
+                  
+                  // Criar cabeçalho do CSV
+                  const headerRow = columns.map(col => '"' + (col || '').toString().replace(/"/g, '""') + '"').join(',');
+                  
+                  // Criar linhas de dados - verificar se cada linha é um array
+                  const rows = data.map(row => {
+                    if (!Array.isArray(row)) {
+                      console.warn("Linha não é um array:", row);
+                      return "";
+                    }
+                    return row.map(cell => '"' + ((cell === null || cell === undefined) ? '' : cell.toString().replace(/"/g, '""')) + '"').join(',');
+                  }).join('\\n');
+                  
+                  // Combinar cabeçalho e dados
+                  const csv = headerRow + '\\n' + rows;
+                  
+                  // Criar e fazer download do arquivo
+                  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  const filename = (fNameForExport || 'results').replace('.us', '') + '_results.csv';
+                  a.download = filename;
+                  console.log("Downloading CSV file:", filename);
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  console.log("CSV export completed successfully");
+                  
+                  // Mostrar feedback de sucesso
+                  const successMsg = document.createElement('div');
+                  successMsg.style.position = 'fixed';
+                  successMsg.style.top = '20px';
+                  successMsg.style.left = '50%';
+                  successMsg.style.transform = 'translateX(-50%)';
+                  successMsg.style.background = 'rgba(22, 163, 74, 0.9)';
+                  successMsg.style.color = 'white';
+                  successMsg.style.padding = '12px 24px';
+                  successMsg.style.borderRadius = '8px';
+                  successMsg.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                  successMsg.style.zIndex = '9999';
+                  successMsg.style.fontWeight = '600';
+                  successMsg.innerHTML = '✅ Arquivo CSV exportado com sucesso!';
+                  document.body.appendChild(successMsg);
+                  
+                  setTimeout(() => {
+                    successMsg.style.opacity = '0';
+                    successMsg.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => document.body.removeChild(successMsg), 500);
+                  }, 3000);
+                } catch (error) {
+                  console.error("Erro ao exportar CSV:", error);
+                  alert("Erro ao exportar CSV: " + error.message);
+                }
               }
               
-              if (${hasTabularData} && Array.isArray(data)) {
+              if (${hasTabularData ? 'true' : 'false'} && Array.isArray(data)) {
                 renderTable();
                 updatePaginationButtons();
               }
